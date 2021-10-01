@@ -31,7 +31,9 @@ pipeline {
         stage('Compile'){
             steps{
                 script{
-                   sh './gradlew assembleStagingDebug' 
+                    image.inside {
+                        sh './gradlew assembleStagingDebug' 
+                    }
                 }
             }
         }
