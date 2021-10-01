@@ -83,7 +83,7 @@ pipeline {
                         .toString())
                         .findAll()
                         .first()
-                        withEnv(["CHANGE_BRANCH=${featureName}"]) {
+                        withEnv(["BUILD_NAME=$env.BUILD_NUMBER"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
                             image.inside {
                                 sh './gradlew assembleDebug appDistributionUploadDebug'
