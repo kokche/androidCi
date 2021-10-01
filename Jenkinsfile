@@ -21,9 +21,6 @@ pipeline {
         stage('Initialization') {
             steps {
                 script {
-                    sh 'printenv'
-                    sh('echo $AUTHOR_NAME')
-                    sh('echo $FEATURES_NAME')
                     buildName env.CHANGE_BRANCH
                 }
                 script {
