@@ -9,12 +9,6 @@ pipeline {
     environment {
         AUTHOR_NAME = sh(script: "git --no-pager show -s --format='%ae'", returnStdout: true).trim()
         LAST_COMMITS = sh( script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true ).toString()
-        FEATURES_NAME = Pattern
-                        .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
-                        .matcher(sh(script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true)
-                        .toString())
-                        .findAll()
-                        .first()
     }
 
     stages {
@@ -83,7 +77,13 @@ pipeline {
                 )
                 {
                     script {
-                        withEnv(["CHANGE_BRANCH=${FEATURE_NAME}"]) {
+                        def featureName = Pattern
+                        .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
+                        .matcher(sh(script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true)
+                        .toString())
+                        .findAll()
+                        .first()
+                        withEnv(["CHANGE_BRANCH=${featureName}"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
                             sh './gradlew assembleStagingDebug appDistributionUploadStagingDebug'
                         }
