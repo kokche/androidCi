@@ -26,7 +26,7 @@ pipeline {
             steps{
                 script{
                     image.inside {
-                        sh './gradlew assembleStagingDebug' 
+                        sh './gradlew assembleDebug' 
                     }
                 }
             }
@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     image.inside {
-                        sh './gradlew testStagingDebugUnitTest testStagingDebugUnitTest'
+                        sh './gradlew testDebugUnitTest testgDebugUnitTest'
                     }
                 }
             }
@@ -56,7 +56,7 @@ pipeline {
             steps {
                 script {
                     image.inside {
-                        sh './gradlew lintStagingDebug'
+                        sh './gradlew lintDebug'
                     }
                 }
             }
@@ -86,7 +86,7 @@ pipeline {
                         withEnv(["CHANGE_BRANCH=${featureName}"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
                             image.inside {
-                                sh './gradlew assembleStagingDebug appDistributionUploadStagingDebug'
+                                sh './gradlew assembleDebug appDistributionUploadDebug'
                             }
                         }
                     }
