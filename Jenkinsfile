@@ -28,6 +28,13 @@ pipeline {
                 }
             }
         }
+        stage('Compile'){
+            steps{
+                script{
+                   sh './gradlew assembleStagingDebug' 
+                }
+            }
+        }
 
         stage('KtLint check') {
             steps {
