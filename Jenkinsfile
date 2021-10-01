@@ -1,7 +1,6 @@
-#! /usr/bin/env groovy 
+#! /usr/bin/env groovy
 
 import java.util.regex.Pattern
-
 
 pipeline {
     agent any
@@ -22,16 +21,6 @@ pipeline {
                 }
             }
         }
-        stage('Compile'){
-            steps{
-                script{
-                    image.inside {
-                        sh './gradlew assembleDebug' 
-                    }
-                }
-            }
-        }
-
         stage('KtLint check') {
             steps {
                 script {
@@ -42,27 +31,44 @@ pipeline {
             }
         }
 
-        stage('Unit tests') {
-            steps {
-                script {
-                    image.inside {
-                        sh './gradlew testDebugUnitTest testDebugUnitTest'
-                    }
-                }
-            }
-        }
-
         stage('Lint analysis') {
             steps {
                 script {
                     image.inside {
-                        sh './gradlew lintDebug'
+                        sh './gradlew lintAptitoDebug'
+                        sh './gradlew lintOrderoutDebug'
                     }
                 }
             }
         }
 
-        stage('Build APK') {
+        stage('Distribute Clover KDS (Aptito) .apk') {
+            when {
+                branch 'development'
+            }
+            steps {
+                script {
+                    withCredentials (
+                    bindings: [
+                        file (
+                              credentialsId: 'appDistributionCredential',
+                              variable: 'GOOGLE_APPLICATION_CREDENTIALS'
+                        )
+                    ]
+                )
+                    {
+                        withEnv(["BUILD_NAME=$env.BUILD_NUMBER"]) {
+                            sh 'echo ${LAST_COMMITS} > releasenotes.txt'
+                            image.inside {
+                                sh './gradlew assembleAptitoDebug appDistributionUploadAptitoDebug'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Distribute Clover KDS (Order Out) .apk') {
             when {
                 branch 'development'
             }
@@ -76,44 +82,17 @@ pipeline {
                     ]
                 )
                 {
-                    script {
-                        def featureName = Pattern
-                        .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
-                        .matcher(sh(script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true)
-                        .toString())
-                        .findAll()
-                        .first()
-                        withEnv(["BUILD_NAME=$env.BUILD_NUMBER"]) {
-                            sh 'echo ${LAST_COMMITS} > releasenotes.txt'
-                            image.inside {
-                                sh './gradlew assembleDebug appDistributionUploadDebug'
-                            }
+                    withEnv(["BUILD_NAME=$env.BUILD_NUMBER"]) {
+                        sh 'echo ${LAST_COMMITS} > releasenotes.txt'
+                        image.inside {
+                            sh './gradlew assembleOrderoutDebug appDistributionUploadOrderoutDebug'
                         }
                     }
                 }
             }
         }
-
-        stage('Deploy') {
-            when {
-                branch 'master'
-            }
-            environment {
-                SIGNING_KEYSTORE = credentials('my-app-signing-keystore')
-                SIGNING_KEY_PASSWORD = credentials('my-app-signing-password')
-            }
-            post {
-                success {
-                    mail(to: 'beta-testers@example.com', subject: 'New build available!', body: 'Check it out!')
-                }
-            }
-            steps {
-                sh './gradlew assembleRelease'
-                archiveArtifacts '**/*.apk'
-                androidApkUpload(googleCredentialsId: 'Google Play', apkFilesPattern: '**/*-release.apk', trackName: 'beta')
-            }
-        }
     }
+
     post {
         failure {
             slackSend(channel: '#ci_cd_status', color: 'danger', message: "$AUTHOR_NAME $env.CHANGE_BRANCH - Build # $BUILD_NUMBER - Failure:Check console output at $BUILD_URL to view the results.")
@@ -122,6 +101,7 @@ pipeline {
             sh "docker rmi ${image.id}"
         }
     }
+
     options {
         skipStagesAfterUnstable()
     }
