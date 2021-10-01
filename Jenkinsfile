@@ -85,7 +85,9 @@ pipeline {
                         .first()
                         withEnv(["CHANGE_BRANCH=${featureName}"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
-                            sh './gradlew assembleStagingDebug appDistributionUploadStagingDebug'
+                            image.inside {
+                                sh './gradlew assembleStagingDebug appDistributionUploadStagingDebug'
+                            }
                         }
                     }
                 }
