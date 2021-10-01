@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     image.inside {
-                        sh './gradlew testDebugUnitTest testgDebugUnitTest'
+                        sh './gradlew testDebugUnitTest testDebugUnitTest'
                     }
                 }
             }
