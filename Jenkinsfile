@@ -118,13 +118,6 @@ pipeline {
         failure {
             slackSend(channel: '#ci_cd_status', color: 'danger', message: "$AUTHOR_NAME $env.CHANGE_BRANCH - Build # $BUILD_NUMBER - Failure:Check console output at $BUILD_URL to view the results.")
         }
-        always {
-            try {
-                sh "docker rmi ${image.id}"
-            } catch(Exception ex) {
-              println("Catching the docker rmi exception");
-            }
-        }
     }
     options {
         skipStagesAfterUnstable()
