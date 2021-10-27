@@ -35,8 +35,7 @@ pipeline {
             steps {
                 script {
                     image.inside {
-                        sh './gradlew lintAptitoDebug'
-                        sh './gradlew lintOrderoutDebug'
+                        sh './gradlew lint'
                     }
                 }
             }
