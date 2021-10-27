@@ -1,7 +1,5 @@
 #! /usr/bin/env groovy
 
-import java.util.regex.Pattern
-
 pipeline {
     agent any
 
@@ -73,19 +71,21 @@ pipeline {
                 branch 'development'
             }
             steps {
-                withCredentials (
-                    bindings: [
-                        file (
-                              credentialsId: 'appDistributionCredential',
-                              variable: 'GOOGLE_APPLICATION_CREDENTIALS'
-                        )
-                    ]
-                )
-                {
-                    withEnv(["BUILD_NAME=$env.BUILD_NUMBER"]) {
-                        sh 'echo ${LAST_COMMITS} > releasenotes.txt'
-                        image.inside {
-                            sh './gradlew assembleOrderoutDebug appDistributionUploadOrderoutDebug'
+                script {
+                    withCredentials (
+                        bindings: [
+                           file (
+                                  credentialsId: 'appDistributionCredential',
+                                  variable: 'GOOGLE_APPLICATION_CREDENTIALS'
+                            )
+                        ]
+                    )
+                    {
+                        withEnv(["BUILD_NAME=$env.BUILD_NUMBER"]) {
+                            sh 'echo ${LAST_COMMITS} > releasenotes.txt'
+                            image.inside {
+                                sh './gradlew assembleOrderoutDebug appDistributionUploadOrderoutDebug'
+                            }
                         }
                     }
                 }
