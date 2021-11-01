@@ -1,11 +1,13 @@
 #! /usr/bin/env groovy
 
 pipeline {
+    
     agent any
 
     environment {
         AUTHOR_NAME = sh(script: "git --no-pager show -s --format='%ae'", returnStdout: true).trim()
         LAST_COMMITS = sh( script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true ).toString()
+        IMAGE_ID = sh(script: 'git rev-parse HEAD' returnStatus: true).trim()
     }
 
     stages {
@@ -15,7 +17,7 @@ pipeline {
                     buildName env.CHANGE_BRANCH
                 }
                 script {
-                    image = docker.build("image:$env.BUILD_NUMBER")
+                    image = docker.build("image:$env.IMAGE_ID")
                 }
             }
         }
