@@ -8,7 +8,7 @@ pipeline
     environment {
         AUTHOR_NAME = sh(script: "git --no-pager show -s --format='%ae'", returnStdout: true).trim()
         LAST_COMMITS = sh( script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true ).toString()
-        IMAGE_ID = sh(script: 'git rev-parse HEAD' returnStatus: true).trim()
+        IMAGE_ID = sh(script: 'git rev-parse HEAD' returnStdout: true).trim()
     }
 
     stages {
