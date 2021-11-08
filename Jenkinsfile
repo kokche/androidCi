@@ -101,7 +101,6 @@ pipeline {
             }
             environment {
                 TEMPLATE_RELEASE_KEYSTORE_FILE_PATH = credentials('my-app-signing-keystore')
-                TEMPLATE_RELEASE_KEYSTORE_FILE_PATH = credentials('my-app-signing-password')
                 TEMPLATE_RELEASE_KEYSTORE_PASSWORD = credentials('release-keystore')
                 TEMPLATE_RELEASE_KEY_ALIAS = credentials('release-key')
                 TEMPLATE_RELEASE_KEY_PASSWORD = credentials('release-key-password')
