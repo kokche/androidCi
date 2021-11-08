@@ -100,8 +100,11 @@ pipeline {
                 branch 'master'
             }
             environment {
-                SIGNING_KEYSTORE = credentials('my-app-signing-keystore')
-                SIGNING_KEY_PASSWORD = credentials('my-app-signing-password')
+                TEMPLATE_RELEASE_KEYSTORE_FILE_PATH = credentials('my-app-signing-keystore')
+                TEMPLATE_RELEASE_KEYSTORE_FILE_PATH = credentials('my-app-signing-password')
+                TEMPLATE_RELEASE_KEYSTORE_PASSWORD = credentials('release-keystore')
+                TEMPLATE_RELEASE_KEY_ALIAS = credentials('release-key')
+                TEMPLATE_RELEASE_KEY_PASSWORD = credentials('release-key-password')
             }
             post {
                 success {
@@ -120,7 +123,7 @@ pipeline {
             slackSend(channel: '#ci_cd_status', color: 'danger', message: "$AUTHOR_NAME $env.CHANGE_BRANCH - Build # $BUILD_NUMBER - Failure:Check console output at $BUILD_URL to view the results.")
         }
         always{
-            sh(script: 'docker rmi ${image.id}')
+           sh "docker rmi ${image.id}"
         }
     }
     options {
