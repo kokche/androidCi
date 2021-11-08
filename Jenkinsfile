@@ -9,6 +9,7 @@ pipeline {
     environment {
         AUTHOR_NAME = sh(script: "git --no-pager show -s --format='%ae'", returnStdout: true).trim()
         LAST_COMMITS = sh( script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true ).toString()
+        IMAGE_ID = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
     }
 
     stages {
@@ -18,7 +19,7 @@ pipeline {
                     buildName env.CHANGE_BRANCH
                 }
                 script {
-                    image = docker.build("image:$env.BUILD_NUMBER")
+                    image = docker.build("image:$env.IMAGE_ID")
                 }
             }
         }
@@ -117,6 +118,9 @@ pipeline {
     post {
         failure {
             slackSend(channel: '#ci_cd_status', color: 'danger', message: "$AUTHOR_NAME $env.CHANGE_BRANCH - Build # $BUILD_NUMBER - Failure:Check console output at $BUILD_URL to view the results.")
+        }
+        always{
+            sh(script: 'docker rmi ${image.id}')
         }
     }
     options {
