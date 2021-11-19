@@ -1,7 +1,6 @@
-#! /usr/bin/env groovy 
+#! /usr/bin/env groovy
 
 import java.util.regex.Pattern
-
 
 pipeline {
     agent any
@@ -23,11 +22,11 @@ pipeline {
                 }
             }
         }
-        stage('Compile'){
-            steps{
-                script{
+        stage('Compile') {
+            steps {
+                script {
                     image.inside {
-                        sh './gradlew assembleDebug' 
+                        sh './gradlew assembleDebug'
                     }
                 }
             }
@@ -67,31 +66,24 @@ pipeline {
             when {
                 branch 'development'
             }
+            environment {
+                FIREBASE_TOKEN = credentials('firebase-token')
+            }
             steps {
-                withCredentials (
-                    bindings: [
-                        file (
-                              credentialsId: 'appDistributionCredential',
-                              variable: 'GOOGLE_APPLICATION_CREDENTIALS'
-                        )
-                    ]
-                )
-                {
-                    script {
-                        def featureName = Pattern
-                        .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
-                        .matcher(sh(script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true)
-                        .toString())
-                        .findAll()
-                        .first()
-                        withEnv(["BUILD_NAME=$featureName"]) {
-                            sh 'echo ${LAST_COMMITS} > releasenotes.txt'
-                            image.inside {
-                                sh './gradlew assembleDebug appDistributionUploadDebug'
+                script {
+                      def featureName = Pattern
+                    .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
+                    .matcher(sh(script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true)
+                    .toString())
+                   .findAll()
+                   .first()
+                    withEnv(["BUILD_NAME=$featureName"]) {
+                        sh 'echo ${LAST_COMMITS} > releasenotes.txt'
+                        image.inside {
+                            sh './gradlew assembleDebug appDistributionUploadDebug'
                             }
                         }
                     }
-                }
             }
         }
 
@@ -119,7 +111,7 @@ pipeline {
         failure {
             slackSend(channel: '#ci_cd_status', color: 'danger', message: "$AUTHOR_NAME $env.CHANGE_BRANCH - Build # $BUILD_NUMBER - Failure:Check console output at $BUILD_URL to view the results.")
         }
-        always{
+        always {
             sh "docker rmi ${image.id}"
         }
     }
