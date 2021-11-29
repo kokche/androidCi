@@ -121,6 +121,7 @@ pipeline {
         }
         always {
             sh "docker rmi ${image.id}"
+            sh "docker system prune -a -f"
         }
     }
     options {
