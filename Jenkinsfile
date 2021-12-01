@@ -67,7 +67,7 @@ pipeline {
                 branch 'development'
             }
             environment {
-                FIREBASE_TOKEN = credentials('firebase-token')
+                FIREBASE_TOKEN = credentials('FIREBASE_TOKEN')
             }
             steps {
                 script {
