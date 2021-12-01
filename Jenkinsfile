@@ -120,8 +120,8 @@ pipeline {
             slackSend(channel: '#ci_cd_status', color: 'danger', message: "$AUTHOR_NAME $env.CHANGE_BRANCH - Build # $BUILD_NUMBER - Failure:Check console output at $BUILD_URL to view the results.")
         }
         always{
-            sh "docker rmi ${image.id}"
-            sh "docker system prune -a -f"
+            sh "docker rmi -f ${image.id}"
+            sh 'docker system prune -a -f'
         }
     }
     options {
