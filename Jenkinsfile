@@ -67,7 +67,7 @@ pipeline {
         }
         always {
             sh "docker rmi -f ${image.id}"
-            sh "docker system prune -a -f"
+            sh 'docker system prune -a -f  --filter \"until=24h\"'
         }
     }
 
