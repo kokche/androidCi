@@ -81,9 +81,9 @@ pipeline {
                         sh 'echo ${LAST_COMMITS} > releasenotes.txt'
                         image.inside {
                             sh './gradlew assembleDebug appDistributionUploadDebug'
-                            }
                         }
                     }
+                }
             }
         }
 
@@ -113,7 +113,8 @@ pipeline {
         }
         always {
             sh "docker rmi ${image.id}"
-            sh "docker system prune -a -f"
+            sh 'docker system prune -a -f  --filter \"until=24h\"'
+
         }
     }
     options {
