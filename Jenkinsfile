@@ -83,7 +83,7 @@ pipeline {
                         .matcher(sh(script: 'git --no-pager log -5 --pretty=%ad:%s', returnStdout: true)
                         .toString())
                         .findAll()
-                        def featureName =  featureNames.size == 0 ? "undefinded" : featureNames.first()
+                        def featureName =  featureNames.size == 0 ? featureNames.first() :  "undefinded"
                         withEnv(["BUILD_NAME=$featureName"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
                             image.inside {
