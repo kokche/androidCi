@@ -78,12 +78,12 @@ pipeline {
                 )
                 {
                     script {
-                        def featureName = Pattern
+                        def featureNames = Pattern
                         .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
                         .matcher(sh(script: 'git --no-pager log -5 --pretty=%ad:%s', returnStdout: true)
                         .toString())
                         .findAll()
-                        .first()
+                        def featureName =  featureNames.size == 0 ? "undefinded" : featureNames.first()
                         withEnv(["BUILD_NAME=$featureName"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
                             image.inside {
