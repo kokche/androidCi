@@ -80,7 +80,7 @@ pipeline {
                     script {
                         def featureName = Pattern
                         .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
-                        .matcher(sh(script: 'git --no-pager log -5 --pretty="%ad: %s"', returnStdout: true)
+                        .matcher(sh(script: 'git --no-pager log -5 --pretty=%ad:%s', returnStdout: true)
                         .toString())
                         .findAll()
                         .first()
