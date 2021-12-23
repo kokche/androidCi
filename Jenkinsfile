@@ -1,7 +1,6 @@
-#! /usr/bin/env groovy 
+#! /usr/bin/env groovy
 
 import java.util.regex.Pattern
-
 
 pipeline {
     agent any
@@ -23,11 +22,11 @@ pipeline {
                 }
             }
         }
-        stage('Compile'){
-            steps{
-                script{
+        stage('Compile') {
+            steps {
+                script {
                     image.inside {
-                        sh './gradlew assembleDebug' 
+                        sh './gradlew assembleDebug'
                     }
                 }
             }
@@ -78,12 +77,12 @@ pipeline {
                 )
                 {
                     script {
-                        def featureNames = Pattern
+                        List<String> featureNames = Pattern
                         .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
-                        .matcher(sh(script: 'git --no-pager log -5 --pretty=%ad:%s', returnStdout: true)
-                        .toString())
+                        .matcher("$env.IMAGE_ID")
                         .findAll()
-                        def featureName =  featureNames.size == 0 ? featureNames.first() :  "undefinded"
+                        def featureName =  featureNames.size == 0 ? 'undefinded' : featureNames.first()
+
                         withEnv(["BUILD_NAME=$featureName"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
                             image.inside {
@@ -119,7 +118,7 @@ pipeline {
         failure {
             slackSend(channel: '#ci_cd_status', color: 'danger', message: "$AUTHOR_NAME $env.CHANGE_BRANCH - Build # $BUILD_NUMBER - Failure:Check console output at $BUILD_URL to view the results.")
         }
-        always{
+        always {
             sh "docker rmi -f ${image.id}"
             sh 'docker system prune -a -f  --filter \"until=24h\"'
         }
