@@ -81,7 +81,7 @@ pipeline {
                         .compile("\\[FEATURE.+\\]|\\[BUGFIX.+\\]|\\[HOTFIX.+\\]")
                         .matcher("$env.IMAGE_ID")
                         .findAll()
-                        def featureName =  featureNames.size == 0 ? 'undefinded' : featureNames.first()
+                        def featureName =  featureNames.size == 0 ? 'undefinded' : featureNames[0]
 
                         withEnv(["BUILD_NAME=$featureName"]) {
                             sh 'echo ${LAST_COMMITS} > releasenotes.txt'
