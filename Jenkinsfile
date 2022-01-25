@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     image.inside {
-                        sh './gradlew ktlintCheck'
+                        sh './gradlew check'
                     }
                 }
             }
