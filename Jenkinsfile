@@ -84,9 +84,15 @@ pipeline {
                         def featureName =  featureNames.size == 0 ? 'undefinded' : featureNames[0]
 
                         withEnv(["BUILD_NAME=$featureName"]) {
-                            sh 'echo ${LAST_COMMITS} > releasenotes.txt'
+                            sh 'echo Debug > releasenotes.txt'
                             image.inside {
                                 sh './gradlew assembleDebug appDistributionUploadDebug'
+                            }
+                        }
+                         withEnv(["BUILD_NAME=$featureName"]) {
+                            sh 'echo Release > releasenotes.txt'
+                            image.inside {
+                                sh './gradlew assembleRelease appDistributionUploadRelease'
                             }
                         }
                     }
